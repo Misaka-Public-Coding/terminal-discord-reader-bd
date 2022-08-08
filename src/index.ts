@@ -75,8 +75,7 @@ events.on("changeChannel", (sID, cID) => {
     if (s) {
         let c = s.getChannelByID(cID);
         if (c) {
-            //PGUI.updateHeader(s.name + '<||>' + c.name);
-            PGUI.updateHeader(sID + '<|-|>' + cID);
+            PGUI.updateHeader(s.name + '<||>' + c.name);
             PGUI.updateMessages(c.getMessagesRaw());
         } else {
             return;
