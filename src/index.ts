@@ -5,6 +5,7 @@ import ServerUpdate from "./ServerUpdate";
 import ServerController from "./ServerController";
 import {port} from './configs.json';
 import * as PGUI from './Graphics';
+import cors from 'cors';
 import {EventEmitter} from "events";
 
 const app = express();
@@ -14,6 +15,7 @@ export const events: EventEmitter = new EventEmitter();
 // let currentChannelId = 0;
 
 app.use(express.json());
+app.use(cors())
 
 app.post('/message', (req, res) => {
     const message = req.body as DiscordMessage;
