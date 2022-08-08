@@ -1,4 +1,6 @@
 import * as blessed from "blessed"
+import {events, lastServerId} from "./index";
+import ServerController from "./ServerController";
 
 let screen = blessed.screen({
     smartCSR: true
@@ -16,17 +18,7 @@ let header = blessed.text({
     align: "center",
     border: {
         type: 'line'
-    },
-    // style: {
-    //     fg: 'white',
-    //     bg: 'green',
-    //     border: {
-    //         fg: '#f0f0f0'
-    //     },
-    //     hover: {
-    //         bg: 'green'
-    //     }
-    // }
+    }
 });
 
 //коробка с сообщениями
@@ -38,43 +30,134 @@ let text = blessed.text({
     tags: true,
     border: {
         type: 'line'
-    },
-    // style: {
-    //     fg: 'white',
-    //     bg: 'black',
-    //     border: {
-    //         fg: '#f0f0f0'
-    //     },
-    //     hover: {
-    //         bg: 'green'
-    //     }
-    // }
+    }
 });
+
+let selectChannels = blessed.list({
+    hidden: true,
+    keys: true,
+    style: {
+        selected: {
+            fg: 'white',
+            bg: 'black',
+        }
+    },
+    top: "21%",
+    left: '0%',
+    width: '100%',
+    height: '85%',
+    border: {
+        type: 'line'
+    },
+})
+
+let selectServers = blessed.list({
+    hidden: true,
+    keys: true,
+    style: {
+        selected: {
+            fg: 'white',
+            bg: 'black',
+        }
+    },
+    top: "21%",
+    left: '0%',
+    width: '100%',
+    height: '85%',
+    border: {
+        type: 'line'
+    },
+})
 
 screen.append(header);
 screen.append(text);
+screen.append(selectChannels);
+screen.append(selectServers);
 
-screen.key(['escape', 'q', 'C-c'], function(ch, key) {
+screen.key(['escape', 'q', 'C-c'], function (ch, key) {
     return process.exit(0);
 });
 
-export let updateMessages = (messages : string[])=>{
-    while(text.getLines().length>0){
+
+
+screen.key('c', () => {
+    updateChannels(lastServerId)
+})
+
+screen.key('s', () => {
+    updateServer();
+})
+
+let serversLast : number[] = []
+let updateServer = () => {
+    text.hide()
+    serversLast = []
+    selectServers.clearItems()
+    selectChannels.hide();
+    ServerController.getServers().forEach(s=>{
+        serversLast.push(s.id)
+        selectServers.addItem(s.name)
+    })
+    selectServers.show()
+    screen.render()
+    selectServers.focus()
+}
+
+let lastSID = 0
+selectServers.on("select", (item, index) => {
+    lastSID = serversLast[index];
+    updateChannels(serversLast[index]);
+})
+
+let channelsLast : number[] = []
+let updateChannels = (id: number) => {
+    //todo подгруз каналов
+
+    channelsLast = []
+    selectChannels.clearItems()
+    text.hide()
+    selectServers.hide();
+    let c = ServerController.getServerByID(id);
+    if(!c){
+        text.show()
+        screen.render()
+        return;
+    }
+    c.getChannels().forEach(c=>{
+        channelsLast.push(c.id)
+        selectChannels.addItem(c.name)
+    })
+
+    selectChannels.show()
+    screen.render()
+    selectChannels.focus()
+}
+
+selectChannels.on("select", (item, index) => {
+    events.emit("changeChannel",lastSID,channelsLast[index])
+    selectChannels.hide()
+    text.show()
+    screen.render();
+})
+
+
+export let updateMessages = (messages: string[]) => {
+    while (text.getLines().length > 0) {
         text.deleteTop();
     }
 
-    messages.forEach(m=>text.pushLine(m))
-    while(text.getLines().length>(parseInt(""+text.height)-2)){
+    messages.forEach(m => text.pushLine(m))
+    while (text.getLines().length > (parseInt("" + text.height) - 2)) {
         text.deleteTop();
     }
 
-    while(text.getScreenLines().length>(parseInt(""+text.height)-2)){
+    while (text.getScreenLines().length > (parseInt("" + text.height) - 2)) {
         text.deleteTop();
     }
     screen.render();
 }
 
-export let updateHeader = (headermsg : string)=>{
+export let updateHeader = (headermsg: string) => {
     header.content = headermsg;
     screen.render();
 }

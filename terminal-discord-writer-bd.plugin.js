@@ -63,17 +63,17 @@ module.exports = class NekoNya {
     }
 
     sendMessage(channelId, serverId, msgId, author, text) {
-        if(lastID === msgId){
+        if (lastID === msgId) {
             return
-        }else{
+        } else {
             lastID = msgId
         }
         if (!confirmedChannels.find(e => e === channelId)) {
-            this.confirmChannel(this.ChannelStore.getChannel(channelId).name,channelId,serverId)
+            this.confirmChannel(this.ChannelStore.getChannel(channelId).name, channelId, serverId)
             confirmedChannels.push(channelId)
         }
         if (!confirmedServers.find(e => e === serverId)) {
-            this.confirmServer(this.GuildStore.getGuild(serverId).name,serverId);
+            this.confirmServer(this.GuildStore.getGuild(serverId).name, serverId);
             confirmedServers.push(serverId);
         }
         let mcp = {
@@ -84,19 +84,19 @@ module.exports = class NekoNya {
             messageText: text
         }
         console.log(mcp)
-        this.post("message",mcp)
+        this.post("message", mcp)
     }
 
     confirmChannel(name, channelId, serverId) {
-        this.post("channel",{
+        this.post("channel", {
             channelID: parseInt(channelId),
             serverID: parseInt(serverId),
             name: name
         })
     }
 
-    confirmServer(name,serverId) {
-        this.post("server",{
+    confirmServer(name, serverId) {
+        this.post("server", {
             serverID: parseInt(serverId),
             name: name
         })
@@ -104,13 +104,12 @@ module.exports = class NekoNya {
 
     post(route, obj) {
         let xhr = new XMLHttpRequest();
-        xhr.open("POST", "http://localhost:3000/"+route);
+        xhr.open("POST", "http://localhost:3000/" + route);
 
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("Content-Type", "application/json");
 
         xhr.onload = () => console.log(xhr.responseText);
-
         xhr.send(JSON.stringify(obj));
     }
 
