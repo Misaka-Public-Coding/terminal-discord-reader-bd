@@ -4,11 +4,7 @@ let screen = blessed.screen({
     smartCSR: true
 });
 
-screen.title = 'HentCord';
-
-
-//todo сменить тип на список
-//Левый бордер со списком игроков
+screen.title = 'Discord I guess';
 
 let header = blessed.text({
     top: "1%",
@@ -21,16 +17,16 @@ let header = blessed.text({
     border: {
         type: 'line'
     },
-    style: {
-        fg: 'white',
-        bg: 'black',
-        border: {
-            fg: '#f0f0f0'
-        },
-        hover: {
-            bg: 'green'
-        }
-    }
+    // style: {
+    //     fg: 'white',
+    //     bg: 'green',
+    //     border: {
+    //         fg: '#f0f0f0'
+    //     },
+    //     hover: {
+    //         bg: 'green'
+    //     }
+    // }
 });
 
 //коробка с сообщениями
@@ -43,16 +39,16 @@ let text = blessed.text({
     border: {
         type: 'line'
     },
-    style: {
-        fg: 'white',
-        bg: 'black',
-        border: {
-            fg: '#f0f0f0'
-        },
-        hover: {
-            bg: 'green'
-        }
-    }
+    // style: {
+    //     fg: 'white',
+    //     bg: 'black',
+    //     border: {
+    //         fg: '#f0f0f0'
+    //     },
+    //     hover: {
+    //         bg: 'green'
+    //     }
+    // }
 });
 
 screen.append(header);
@@ -63,8 +59,16 @@ screen.key(['escape', 'q', 'C-c'], function(ch, key) {
 });
 
 export let updateMessages = (messages : string[])=>{
+    while(text.getLines().length>0){
+        text.deleteTop();
+    }
+
     messages.forEach(m=>text.pushLine(m))
     while(text.getLines().length>(parseInt(""+text.height)-2)){
+        text.deleteTop();
+    }
+
+    while(text.getScreenLines().length>(parseInt(""+text.height)-2)){
         text.deleteTop();
     }
     screen.render();

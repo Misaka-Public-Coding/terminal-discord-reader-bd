@@ -4,9 +4,15 @@ import ChannelUpdate from "./ChannelUpdate";
 import ServerUpdate from "./ServerUpdate";
 import ServerController from "./ServerController";
 import {port} from './configs.json';
-import './Graphics';
+import * as PGUI from './Graphics';
+import {EventEmitter} from "events";
 
 const app = express();
+
+export const events: EventEmitter = new EventEmitter();
+
+// let currentChannelId = 0;
+
 app.use(express.json());
 
 app.post('/message', (req, res) => {
@@ -35,3 +41,16 @@ app.get('/console',(req,res)=>{
 app.listen(port, () => {
     console.log(`> Server is listening on port ${port}`);
 });
+
+events.on("message_update",(cid,sid)=>{
+        let s = ServerController.getServerByID(sid)
+        if(s){
+            let c = s.getChannelByID(cid);
+            if(c){
+                PGUI.updateHeader(s.name+'<||>'+c.name);
+                PGUI.updateMessages(c.getMessagesRaw());
+            }else{return;}
+        }else{
+            return;
+        }
+})

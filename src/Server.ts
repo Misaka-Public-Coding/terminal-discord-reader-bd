@@ -29,7 +29,7 @@ export default class Server {
         this.channels.push(channel);
     }
 
-    getServerByID(id: number) {
+    getChannelByID(id: number) {
         return this.channels.find((c) => c.id === id);
     }
 
